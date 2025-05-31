@@ -13,6 +13,7 @@ pub struct DecodedAudio {
     pub sample_rate: u32,
     pub channels: u16,
     pub duration_secs: f32,
+    pub normalized_samples: Vec<f32>,
 }
 
 pub type TDecodedResult = Result<DecodedAudio, DecoderError>;
@@ -40,6 +41,10 @@ mod test {
     #[test]
     fn test_decoder_header() {
         let amapiano_path = Path::new("test_data/amapiano.wav");
-        let _ = decode_audio(amapiano_path).ok().unwrap();
+        let s = decode_audio(amapiano_path).ok().unwrap();
+        println!(
+            "Decoded samples {:?} Normalized {:?}",
+            s.samples, s.normalized_samples
+        )
     }
 }

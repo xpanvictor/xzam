@@ -43,11 +43,21 @@ pub fn decode_wav<P: AsRef<Path>>(path: P) -> Result<DecodedAudio, DecoderError>
         refined_samples.push(avg);
     }
 
+    // normalize the sample
+    let max: f32 = *refined_samples
+        .clone()
+        .iter()
+        .max_by(|x, y| x.abs().partial_cmp(&y.abs()).unwrap())
+        .unwrap();
+    let norm_sample = refined_samples.clone().into_iter().map(|c| c / max);
+    println!("Maxxxxxxxxxxxxxxx {max}");
+
     let decoded = DecodedAudio {
         sample_rate: spec.sample_rate,
         samples: refined_samples,
         channels: channel_count,
         duration_secs: duration as f32,
+        normalized_samples: norm_sample.collect(),
     };
     Ok(decoded)
 }
