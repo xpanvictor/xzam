@@ -19,7 +19,6 @@ pub fn decode_wav<P: AsRef<Path>>(path: P) -> Result<DecodedAudio, DecoderError>
     let duration = reader.duration();
     let mut samples = reader.samples::<i32>();
 
-    let mut refined_samples: Vec<f32> = Vec::new();
     let channel_count = spec.channels;
     println!("samplen {}-{channel_count}", samples.len());
 
