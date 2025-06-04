@@ -1,10 +1,10 @@
 use std::f32::consts::PI;
 
-struct Frame {
-    index: u64,
-    chunk: Vec<f32>,
-    offset_samples: u64,
-    offset_time: u64,
+pub struct Frame {
+    pub index: u64,
+    pub chunk: Vec<f32>,
+    pub offset_samples: u64,
+    pub offset_time: u64,
 }
 
 pub type TFrames = Vec<Frame>;

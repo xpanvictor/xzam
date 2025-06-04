@@ -6,3 +6,4 @@ edition = "2024"
 [dependencies]
 hound = "3.5.1"
 thiserror = "2.0.12"
+rustfft = "6.3.0"
