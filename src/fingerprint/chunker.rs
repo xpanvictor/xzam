@@ -9,6 +9,18 @@ pub struct Frame {
 
 pub type TFrames = Vec<Frame>;
 
+fn hanning(window: Vec<f32>) -> Vec<f32> {
+    #[allow(non_snake_case)]
+    let N = window.len() as f32;
+    window
+        .iter()
+        .map(|val| {
+            // apply hanning fn
+            0.5 * (1. - ((2. * PI * val) / (N - 1.)).cos())
+        })
+        .collect()
+}
+
 pub fn chunk_normalized(
     normalized: Vec<f32>,
     sample_rate: u32,
@@ -33,7 +45,7 @@ pub fn chunk_normalized(
             curr_buffer.resize(window_size as usize, 0.);
         }
 
-        let hanned_chunck = hanning(curr_buffer);
+        let hanned_chunck = self::hanning(curr_buffer);
         frames.push(Frame {
             index,
             chunk: hanned_chunck,
@@ -43,16 +55,4 @@ pub fn chunk_normalized(
         index += 1;
     }
     frames
-}
-
-pub fn hanning(window: Vec<f32>) -> Vec<f32> {
-    #[allow(non_snake_case)]
-    let N = window.len() as f32;
-    window
-        .iter()
-        .map(|val| {
-            // apply hanning fn
-            0.5 * (1. - ((2. * PI * val) / (N - 1.)).cos())
-        })
-        .collect()
 }
