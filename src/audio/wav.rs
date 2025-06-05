@@ -1,6 +1,7 @@
 use crate::audio::decoder::Decoder;
 
 use super::{decoder::DecodedAudio, errors::DecoderError};
+use core::f32;
 use std::path::Path;
 
 pub struct WavDecoder<'a> {
@@ -8,8 +9,8 @@ pub struct WavDecoder<'a> {
 }
 
 impl<'a, P: AsRef<Path>> Decoder<P> for WavDecoder<'a> {
-    fn decode(self, path: P) -> super::decoder::TDecodedResult {
-        decode_wav(path)
+    fn decode(self, _: P) -> super::decoder::TDecodedResult {
+        decode_wav(self.path)
     }
 }
 
@@ -43,11 +44,11 @@ pub fn decode_wav<P: AsRef<Path>>(path: P) -> Result<DecodedAudio, DecoderError>
     }
 
     // normalize the sample
-    let max: f32 = *refined_samples
-        .clone()
+    let max: f32 = refined_samples
         .iter()
-        .max_by(|x, y| x.abs().partial_cmp(&y.abs()).unwrap())
-        .unwrap();
+        .cloned()
+        .reduce(f32::max)
+        .unwrap_or(1.);
     let norm_sample = refined_samples.clone().into_iter().map(|c| c / max);
     println!("Maxxxxxxxxxxxxxxx {max}");
 

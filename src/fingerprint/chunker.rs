@@ -16,26 +16,31 @@ pub fn chunk_normalized(
     step_size: u32,
 ) -> TFrames {
     let mut frames: TFrames = vec![];
-    loop {
-        let norm_length = normalized.len();
-        let mut index: u64 = 0;
-        loop {
-            let offset_sample: u64 = index * step_size as u64;
+    let norm_length = normalized.len();
+    let mut index: u64 = 0;
 
-            let curr_buffer: Vec<f32> = normalized.iter().take(window_size as usize).collect();
-            let hanned_chunk = hanning(curr_buffer);
-            frames.push(Frame {
-                index: index,
-                chunk: hanned_chunk,
-                offset_samples: offset_sample as u64,
-                offset_time: offset_sample / sample_rate as u64,
-            });
-            index += 1;
-            if index * window_size as u64 >= norm_length as u64 {
-                break;
-            }
+    while (index * step_size as u64 + window_size as u64) <= norm_length as u64 {
+        let offset_sample = index * step_size as u64;
+        let mut curr_buffer: Vec<f32> = normalized
+            .iter()
+            .skip(offset_sample as usize)
+            .take(window_size as usize)
+            .cloned()
+            .collect();
+
+        // pad if not full
+        if curr_buffer.len() < window_size as usize {
+            curr_buffer.resize(window_size as usize, 0.);
         }
-        break;
+
+        let hanned_chunck = hanning(curr_buffer);
+        frames.push(Frame {
+            index,
+            chunk: hanned_chunck,
+            offset_samples: offset_sample,
+            offset_time: offset_sample / sample_rate as u64,
+        });
+        index += 1;
     }
     frames
 }
