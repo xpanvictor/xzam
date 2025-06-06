@@ -18,8 +18,12 @@ impl GenFFT for Frame {
         let mut fft_planner = rustfft::FftPlanner::new();
         let fft = fft_planner.plan_fft_forward(cmp_vec.len());
         // process buffers
-        // todo: retain only first N/2 bins
         fft.process(&mut cmp_vec);
-        cmp_vec.iter().map(|v| v.re.hypot(v.im)).collect()
+        // retain only first N/2 bins
+        cmp_vec
+            .iter()
+            .take(cmp_vec.len() / 2)
+            .map(|v| v.re.hypot(v.im))
+            .collect()
     }
 }

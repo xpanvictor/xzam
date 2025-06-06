@@ -8,3 +8,8 @@
 pub mod chunker;
 pub mod constellation;
 pub mod fft;
+pub mod fingerprint;
+
+pub fn generate_fingerprint() -> String {
+    todo!()
+}
