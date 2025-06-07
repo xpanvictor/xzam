@@ -82,14 +82,14 @@ mod test {
 
     #[test]
     fn check_db_instance() {
-        let db = FingerprintDB::new("test_db");
+        let db = FingerprintDB::new("db/test_db");
         assert!(db.db.is_empty());
         fs::remove_dir_all(db.db_path).unwrap();
     }
 
     #[test]
     fn check_db_actions() {
-        let mut db = FingerprintDB::new("test_db");
+        let mut db = FingerprintDB::new("db/test_db");
         let fingerprint = Fingerprint {
             hash: 1234,
             offset: 32,
@@ -107,7 +107,7 @@ mod test {
 
     #[test]
     fn check_db_histogram() {
-        let mut db = FingerprintDB::new("test_db");
+        let mut db = FingerprintDB::new("db/test_db");
         let fingerprint = Fingerprint {
             hash: 1234,
             offset: 32,
