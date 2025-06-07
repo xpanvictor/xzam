@@ -1,4 +1,4 @@
-use std::{collections::HashMap, error::Error, path::PathBuf};
+use std::{collections::HashMap, error::Error, path::Path};
 
 use crate::{audio::decoder::decode_audio, db::FingerprintDB, fingerprint::fingerprint_audio};
 
@@ -11,9 +11,14 @@ pub type TMatchScore = (String, u32);
 // should use config but for now
 const DB_PATH: &str = "db/store";
 
-pub fn store_audio(track_id: &str, audio_path: PathBuf) -> Result<(), Box<dyn Error>> {
+/// Store audio
+/// @param: track_id This takes the id the track should be stored with
+/// @param: audio_path The path of the audio, note, place audio in test_data folder
+pub fn store_audio(track_id: &str, audio_path_id: &str) -> Result<(), Box<dyn Error>> {
     let mut db = FingerprintDB::new(DB_PATH);
     // decode audio
+    let absolute_path = format!("test_data/{}", audio_path_id);
+    let audio_path = Path::new(&absolute_path);
     let decoded_audio = decode_audio(audio_path)?;
     // get audio's fingerprints from
     let f_stream = fingerprint_audio(decoded_audio);
@@ -24,9 +29,11 @@ pub fn store_audio(track_id: &str, audio_path: PathBuf) -> Result<(), Box<dyn Er
     Ok(())
 }
 
-pub fn score_sample(sample_path: PathBuf) -> Result<TMatchScore, Box<dyn Error>> {
+pub fn score_sample(audio_path_id: &str) -> Result<TMatchScore, Box<dyn Error>> {
     let db = FingerprintDB::new(DB_PATH);
     // decode audio
+    let absolute_path = format!("test_data/{}", audio_path_id);
+    let sample_path = Path::new(&absolute_path);
     let decoded_audio = decode_audio(sample_path)?;
     // f_prints_stream
     let f_stream = fingerprint_audio(decoded_audio);
