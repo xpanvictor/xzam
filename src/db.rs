@@ -60,7 +60,7 @@ impl FingerprintDB {
         }
     }
 
-    pub fn generate_histogram(self, fingerprints: &[Fingerprint]) -> TPrintHashMap {
+    pub fn generate_histogram(&self, fingerprints: &[Fingerprint]) -> TPrintHashMap {
         let mut counts_map: TPrintHashMap = HashMap::new();
 
         for fingerprint in fingerprints {

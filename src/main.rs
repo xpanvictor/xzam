@@ -47,10 +47,10 @@ fn main() {
         Subcommands::FindSample { track_path } => {
             let res = score_sample(&track_path);
             match res {
-                Ok((track_id, score)) => {
+                Ok((track_id, score, delta)) => {
                     println!(
-                        "Winning audio has track_id: {} with score: {}",
-                        track_id, score
+                        "Winning audio has track_id: {} with score: {}; delta suggests offset: {}",
+                        track_id, score, delta
                     );
                 }
                 Err(e) => {
