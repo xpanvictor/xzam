@@ -9,7 +9,10 @@ use std::path::PathBuf;
 
 use crate::{
     audio::decoder::DecodedAudio,
-    fingerprint::{constellation::generate_constellation, fingerprint::generate_fingerprints},
+    fingerprint::{
+        constellation::generate_constellation,
+        fingerprint::{Fingerprint, generate_fingerprints},
+    },
 };
 
 pub mod chunker;
@@ -20,7 +23,9 @@ pub mod fingerprint;
 const WINDOW_SIZE: u32 = 1024;
 const STEP_SIZE: u32 = 512;
 
-pub fn fingerprint_audio(audio: DecodedAudio) -> PathBuf {
+pub type TFingerprintStream = Box<dyn Iterator<Item = Fingerprint>>;
+
+pub fn fingerprint_audio(audio: DecodedAudio) -> TFingerprintStream {
     // chunk the audio
     let mut chunks = chunker::chunk_normalized(
         audio.normalized_samples,
@@ -30,8 +35,9 @@ pub fn fingerprint_audio(audio: DecodedAudio) -> PathBuf {
     );
     // generate constellation
     let constellation = generate_constellation(&mut chunks, WINDOW_SIZE as usize);
-    // return fingerprints
-    generate_fingerprints(constellation)
+    // collect fingerprints into a Vec to own the data
+    let fingerprints: Vec<Fingerprint> = generate_fingerprints(&constellation).collect();
+    Box::new(fingerprints.into_iter())
 }
 
 #[cfg(test)]
@@ -40,14 +46,33 @@ mod test {
         audio::decoder::decode_audio,
         fingerprint::{self, fingerprint_audio},
     };
-    use std::path::Path;
+    use serde::{Deserialize, Serialize};
+    use std::fs::File;
+    use std::io::{BufWriter, Write};
+    use std::path::{Path, PathBuf};
+    use std::sync::{Arc, Mutex};
+    use uuid::Uuid;
 
     #[test]
     fn generate_fingerprints_from_audio() {
         let amapiano_path = Path::new("test_data/amapiano.wav");
+        let file_id = Uuid::new_v4().to_string();
+        let output_path_str = format!("prints/{}.json", file_id);
+        let output_path = Path::new(&output_path_str);
+        let file = File::create(output_path).expect("Failed to create output file");
+        let writer = Arc::new(Mutex::new(file));
         println!("Generating fingerprints for amapiano song!");
         let s = decode_audio(amapiano_path).ok().unwrap();
-        let fingerprints_path = fingerprint_audio(s);
-        println!("Fingerprints {:?}", fingerprints_path)
+        let fingerprints = fingerprint_audio(s);
+
+        let mut w = writer.lock().unwrap();
+        write!(&mut w, "[").unwrap();
+        for f in fingerprints {
+            let line = serde_json::to_string(&f).unwrap();
+            writeln!(&mut w, "{line},").unwrap();
+        }
+        writeln!(&mut w, "{{}}]").unwrap();
+
+        println!("Fingerprints stored in {:?}", output_path.to_str())
     }
 }
