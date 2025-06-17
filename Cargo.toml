@@ -3,6 +3,13 @@ name = "xzam"
 version = "0.1.0"
 edition = "2024"
 description = "Shazam implementation"
+exclude = [
+    "/target/*",
+    "*.bin",
+    "*.png",
+    "*.mp3",
+    "*.wav",
+]
 
 [dependencies]
 hound = "3.5.1"
